@@ -16,12 +16,15 @@ Future<void> initDependencies() async {
 
   Hive.init((await getApplicationDocumentsDirectory()).path);
   Hive.registerAdapter(HabitModelAdapter());
-  sl.registerLazySingleton(() => Hive.openBox<HabitModel>("habits"));
+  final habitsBox = await Hive.openBox<HabitModel>("habits");
+  sl.registerLazySingleton(() => habitsBox);
 }
 
 void _initHabit() {
   sl
-    ..registerFactory<HabitLocalDataSource>(() => HabitLocalDataSourceImpl(sl()))
+    // Formatter made me do it.
+    ..registerFactory<HabitLocalDataSource>(
+        () => HabitLocalDataSourceImpl(sl()))
     ..registerFactory<HabitRepository>(() => HabitRepositoryImpl(sl()))
     ..registerFactory<GetAllHabits>(() => GetAllHabits(sl()))
     ..registerLazySingleton<HabitBloc>(() => HabitBloc(getAllHabits: sl()));
